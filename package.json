@@ -1,0 +1,26 @@
+{
+  "name": "vantest",
+  "version": "1.0.0",
+  "description": "testing action cable",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "actioncable": "^5.2.3",
+    "actioncable-js": "^5.0.0-rc2",
+    "nodejs-websocket": "^1.7.2",
+    "onoff": "^4.1.1",
+    "socket.io": "^2.2.0",
+    "socketio": "^1.0.0",
+    "websocket": "^1.0.28",
+    "window-or-global": "^1.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4"
+  }
+}
