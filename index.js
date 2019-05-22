@@ -1,53 +1,62 @@
 console.log('Starting...')
-
-var WebSocketClient = require('websocket').client;
-var client = new WebSocketClient();
+const fetch = require('node-fetch');
 var Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
-var LED = new Gpio(4, 'out'); //use GPIO pin 4, and specify that it is output
-var blinkInterval = setInterval(blinkLED, 250); //run the blinkLED function every 250ms
+var LED1 = new Gpio(4, 'out'); //use GPIO pin 4, and specify that it is output
+var LED17 = new Gpio(17, 'out');
+const URL = 'https://agile-reef-99245.herokuapp.com/'
 
-client.on('connectFailed', function(error) {
-  console.log('Connect Error: ' + error.toString());
-});
 
-client.on('connect', function(connection) {
-  console.log('WebSocket Client Connected');
-  connection.on('error', function(error) {
-      console.log("Connection Error: " + error.toString());
-  });
-  connection.on('close', function() {
-      console.log('Connection Closed');
-  });
-  connection.on('message', function(message) {
-      if (message.type === 'utf8') {
-          console.log("Received: '" + message.utf8Data + "'");
+  fetch(URL + 'login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  Accept: 'application/json'
+  },
+  body: JSON.stringify({
+    user: {
+      username: 'Pi',
+      password: '1'
+    }
+  })
+})
+.then(r => r.json())
+.then(data => getDevices(data.jwt))
+
+function getDevices(jwt) {
+    let config = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${jwt}`
       }
-  });
-  
-  function sendNumber() {
-      if (connection.connected) {
-          var number = Math.round(Math.random() * 0xFFFFFF);
-          connection.sendUTF(number);
-          setTimeout(sendNumber, 1000);
+    }
+    fetch(URL + 'devices', config)
+      .then(r => r.json())
+      .then (data => controlDevices(data, jwt))
+  }
+
+function controlDevices(devices, jwt){
+    console.log(devices)
+    devices.forEach(ele => {
+      if(ele.id === 1){
+        if(ele.commands[0]==='on'){
+          LED1.writeSync(1)
+          getDevices(jwt)
+        } else {
+          LED1.writeSync(0)
+          getDevices(jwt)
+        }
+      } 
+      if(ele.id === 2){
+        if(ele.commands[0]==='on'){
+          LED17.writeSync(1)
+          getDevices(jwt)
+        } else {
+          LED17.writeSync(0)
+          getDevices(jwt)
+        }
       }
+
+    })
   }
-  sendNumber();
-});
-
-function blinkLED() { //function to start blinking
-  if (LED.readSync() === 0) { //check the pin state, if the state is 0 (or off)
-    LED.writeSync(1); //set pin state to 1 (turn LED on)
-  } else {
-    LED.writeSync(0); //set pin state to 0 (turn LED off)
-  }
-}
-
-function endBlink() { //function to stop blinking
-  clearInterval(blinkInterval); // Stop blink intervals
-  LED.writeSync(0); // Turn LED off
-  LED.unexport(); // Unexport GPIO to free resources
-}
-
-
-client.connect('wss://agile-reef-99245.herokuapp.com/cable');
-setTimeout(endBlink, 5000); //stop blinking after 5 seconds

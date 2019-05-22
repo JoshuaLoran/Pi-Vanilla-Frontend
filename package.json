@@ -11,6 +11,9 @@
   "dependencies": {
     "actioncable": "^5.2.3",
     "actioncable-js": "^5.0.0-rc2",
+    "asyncawait": "^1.0.8",
+    "babel-polyfill": "^6.26.0",
+    "node-fetch": "^2.6.0",
     "nodejs-websocket": "^1.7.2",
     "onoff": "^4.1.1",
     "socket.io": "^2.2.0",
